@@ -8,7 +8,7 @@ from datetime import datetime
 # CONFIG
 SHEET_NAME = 'Volleyball signup'
 WEATHER_API_KEY = os.environ['WEATHER_API_KEY']
-LOCATION = 'Boston,US'
+LOCATION = 'Cambridge,US'
 DAY_COLUMNS = ['B', 'C', 'D', 'E', 'F', 'G', 'H']
 WEATHER_ROW = 10
 
@@ -35,22 +35,21 @@ emoji_map = {
     'Mist': '🌫️',
 }
 
-# Group by day
-daily_summary = {}
+# Filter entries at 6 PM only
+six_pm_forecasts = {}
 for entry in data['list']:
     dt = datetime.fromtimestamp(entry['dt'])
-    date_str = dt.strftime('%Y-%m-%d')
-    if date_str not in daily_summary:
-        daily_summary[date_str] = entry
+    if dt.strftime('%H:%M:%S') == '18:00:00':
+        date_str = dt.strftime('%Y-%m-%d')
+        six_pm_forecasts[date_str] = entry
 
-# Update each day (up to 5 days, fallback repeats for 7)
-dates = list(daily_summary.keys())
+# Update each day (up to 7 columns)
+dates = list(six_pm_forecasts.keys())
 for i, col in enumerate(DAY_COLUMNS):
     if i < len(dates):
-        day_data = daily_summary[dates[i]]
+        day_data = six_pm_forecasts[dates[i]]
     else:
-        # Repeat last available day if fewer than 7
-        day_data = daily_summary[dates[-1]]
+        day_data = six_pm_forecasts[dates[-1]]
     weather_main = day_data['weather'][0]['main']
     temp = day_data['main']['temp']
     emoji = emoji_map.get(weather_main, '🌈')
