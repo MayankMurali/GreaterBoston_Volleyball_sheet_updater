@@ -28,4 +28,6 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run weather updater 
+        # dont wanna run this automatically
+        if: github.event_name == 'workflow_dispatch'
         run: python weather_api_sheet_updater.py
